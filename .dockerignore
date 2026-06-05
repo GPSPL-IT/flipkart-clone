@@ -1,0 +1,30 @@
+# ============================================================
+#  Root .dockerignore
+#  Yeh file root context (..) ke saath kaam karta hai
+#  Docker build mein in files/folders ko ignore karo
+# ============================================================
+
+# node_modules kabhi copy mat karo — container mein rebuild hoga
+backend/node_modules
+frontend/node_modules
+
+# Frontend build output — container mein fresh build hogi
+frontend/dist
+
+# Git history ki zaroorat nahi container mein
+.git
+.gitignore
+
+# Environment files — docker-compose env_file se aayegi
+.env
+.env.*
+*/.env
+*/.env.*
+
+# Logs aur temp files
+*.log
+npm-debug.log*
+
+# IDE files
+.vscode
+.idea

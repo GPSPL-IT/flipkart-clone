@@ -1,0 +1,79 @@
+# ============================================================
+#  Flipkart Clone — Docker Compose
+#
+#  📁 Yeh file docker/ folder mein hai
+#  🚀 Run karo: cd docker && docker compose up --build
+#  🌱 Seed:     docker compose exec backend node seed.js
+#
+#  Build context root (..) hai — isliye Dockerfiles mein
+#  backend/ aur frontend/ prefix lagana padta hai
+# ============================================================
+
+services:
+
+  # ── MongoDB ──────────────────────────────────────────────
+  mongo:
+    image: mongo:7
+    container_name: flipkart_mongo
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - flipkart_net
+
+  # ── Backend (Node / Express) ─────────────────────────────
+  backend:
+    build:
+      context: ..                          # root folder (filpkart/) = build context
+      dockerfile: docker/backend/Dockerfile
+    container_name: flipkart_backend
+    restart: unless-stopped
+    env_file: ../.env                      # root .env file
+    environment:
+      NODE_ENV: production
+      MONGODB_URI: mongodb://mongo:27017/flipkart
+    ports:
+      - "5000:5000"
+    depends_on:
+      mongo:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - flipkart_net
+
+  # ── Frontend (React → nginx) ─────────────────────────────
+  frontend:
+    build:
+      context: ..                           # root folder = build context
+      dockerfile: docker/frontend/Dockerfile
+    container_name: flipkart_frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - flipkart_net
+
+# ── Volumes ───────────────────────────────────────────────
+volumes:
+  mongo_data:
+    name: flipkart_mongo_data
+
+# ── Networks ──────────────────────────────────────────────
+networks:
+  flipkart_net:
+    name: flipkart_network
+    driver: bridge
