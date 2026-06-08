@@ -23,6 +23,7 @@ const Cart = () => {
   const [applying, setApplying] = useState(false);
 
   const activeItems = cartItems.filter(item => !item.savedForLater);
+  console.log("Cart Items:", cartItems);
   const savedItems = cartItems.filter(item => item.savedForLater);
 
   const handleApplyCoupon = async (e) => {

@@ -62,9 +62,9 @@ export const CartProvider = ({ children }) => {
 
   // Add item to cart
   const addToCart = async (product, quantity = 1) => {
-    const existingIndex = cartItems.findIndex(
-      item => (item.product._id || item.product) === product._id
-    );
+  const existingIndex = cartItems.findIndex(
+  item => item?.product && (item.product._id || item.product) === product._id
+);
 
     let updatedItems = [...cartItems];
 
