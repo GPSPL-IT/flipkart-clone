@@ -109,3 +109,4 @@ cd frontend && npm install && npm run dev
 ```
 
 > In local dev, Vite auto-proxies `/api` → `http://localhost:5000` via `vite.config.js`.
+"# flipkart-clone" 
