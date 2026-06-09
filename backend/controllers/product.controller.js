@@ -4,21 +4,18 @@ import Category from "../models/category.model.js";
 // get all products 
 export const getProducts = async (req, res) => {
     try {
-        // 1. Pagination setup (Limit aur Page handle karna)
         const pageSize = Math.min(Number(req.query.limit) || 12, 50); // Cap at 50 products per request
         const page = Math.max(Number(req.query.page) || 1, 1);  // Minimum page is 1
 
-        // 2. Fetch total count and products in parallel (Bina kisi filter ke)
         const [count, products] = await Promise.all([
-            Product.countDocuments({}), // Empty object means count ALL products
-            Product.find({})            // Empty object means fetch ALL products
-                // .populate('category', 'name slug') // Agar category ka naam chahiye frontend pe toh ise rehne dein
+            Product.countDocuments({}),
+            Product.find({})            
+                // .populate('category', 'name slug') 
                 .limit(pageSize)
                 .skip(pageSize * (page - 1))
-                .lean() // lean() query ko fast banata hai
+                .lean() 
         ]);
 
-        // 3. Send successful response to frontend
         return res.status(200).json({
             success: true,
             message: "Products fetched successfully",
@@ -29,7 +26,6 @@ export const getProducts = async (req, res) => {
         });
 
     } catch (error) {
-        // 4. Error handling
         return res.status(500).json({
             success: false,
             message: "Internal Server Error",
@@ -58,7 +54,8 @@ export const getProductByCategory = async (req, res) => {
 // get single product
 export const getProductById = async (req, res) => {
     try {
-        const product = await Product.findById(req.params.id).populate("category", "name slug").lean();
+        const product = await Product.findById(req.params.id)
+        // .populate("category", "name slug").lean();
         if (!product) {
             return res.status(404).json({ message: 'Product not found' });
         }
