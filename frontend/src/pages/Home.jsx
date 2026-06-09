@@ -8,7 +8,7 @@ import API from '../services/api';
 
 const Home = () => {
   const { user } = useAuth();
-  
+
   const [trending, setTrending] = useState([]);
   const [featured, setFeatured] = useState([]);
   const [topRated, setTopRated] = useState([]);
@@ -104,12 +104,12 @@ const Home = () => {
 
   return (
     <div className="pb-12 bg-gray-50 dark:bg-zinc-950 transition-colors duration-200">
-      
+
       {/* Category Icons Bar */}
       <CategoryBar />
 
       <div className="max-w-7xl mx-auto px-4 md:px-8 mt-4 flex flex-col gap-5">
-        
+
         {/* Banner Carousel */}
         <div className="relative h-40 sm:h-56 md:h-72 w-full overflow-hidden rounded shadow-sm">
           <div
@@ -152,14 +152,14 @@ const Home = () => {
         {/* SALE COUNTDOWN BANNER (Matches screenshot layout exactly) */}
         <div className="bg-blue-50 dark:bg-zinc-900 border border-blue-100 dark:border-zinc-800 rounded py-2 px-4 flex items-center justify-center gap-1.5 shadow-sm text-sm text-gray-700 dark:text-zinc-300 font-semibold transition-colors">
           <span>Sale ends in</span>
-          <span className="bg-blue-600 text-white text-xs px-2 py-0.5 rounded font-black tracking-wider shadow-sm">{hrs}</span> Hrs : 
-          <span className="bg-blue-600 text-white text-xs px-2 py-0.5 rounded font-black tracking-wider shadow-sm">{mins}</span> Min : 
+          <span className="bg-blue-600 text-white text-xs px-2 py-0.5 rounded font-black tracking-wider shadow-sm">{hrs}</span> Hrs :
+          <span className="bg-blue-600 text-white text-xs px-2 py-0.5 rounded font-black tracking-wider shadow-sm">{mins}</span> Min :
           <span className="bg-blue-600 text-white text-xs px-2 py-0.5 rounded font-black tracking-wider shadow-sm">{secs}</span> Sec
         </div>
 
         {/* PROMOTIONAL GRID BANNERS (3 Columns matching the screenshot cards) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          
+
           {/* Card 1: Dry Fruits */}
           <div className="bg-[#fad34f] text-gray-950 p-5 rounded shadow-sm border border-yellow-250 flex justify-between items-center relative overflow-hidden h-44 hover:shadow-product transition-shadow">
             <div className="flex flex-col justify-between h-full z-10 max-w-[60%]">
@@ -227,7 +227,7 @@ const Home = () => {
                 {user ? `${user.name.split(' ')[0]}, still looking for these?` : 'Still looking for these?'}
               </h3>
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
               {recentlyViewed.slice(0, 4).map((product) => (
                 <ProductCard key={product._id} product={product} />
