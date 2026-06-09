@@ -1,31 +1,32 @@
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
-import connectDB from "./config/db.js";
+import express from "express"
+import cors from "cors"
+import cookieParser from "cookie-parser"
+import dotenv from "dotenv"
+import connectDB from "./config/db.js"
+import userRouter from "./routes/user.route.js"
+import productRouter from "./routes/product.route.js"
 
-import orderRoutes from "./routes/order.route.js";
-import reviewRoutes from "./routes/review.route.js";
+dotenv.config()
 
-app.use("/api/reviews", reviewRoutes);
+const app = express()
 
-dotenv.config();
-
-const app = express();
-
-app.use(cors());
-app.use(express.json());
-
-// Connect Database
-connectDB();
-
-// Routes
-app.use("/api/orders", orderRoutes);
-app.use("/api/reviews", reviewRoutes);
+app.use(cors({ credentials: true }))
+app.use(cookieParser())
+app.use(express.json())
 
 app.get("/", (req, res) => {
-  res.send("Server is running");
-});
+    res.send("Server is running")
+})
+
+// connect database (mongodb)
+connectDB()
+
+// user routes
+app.use("/api/users", userRouter)
+// product routes
+app.use("/api/products", productRouter)
+
 
 app.listen(process.env.PORT || 3005, () => {
-  console.log(`Server is running on port ${process.env.PORT}`);
-});
+    console.log(`Server is running on port ${process.env.PORT}`)
+})
