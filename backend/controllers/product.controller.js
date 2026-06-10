@@ -9,11 +9,11 @@ export const getProducts = async (req, res) => {
 
         const [count, products] = await Promise.all([
             Product.countDocuments({}),
-            Product.find({})            
+            Product.find({})
                 // .populate('category', 'name slug') 
                 .limit(pageSize)
                 .skip(pageSize * (page - 1))
-                .lean() 
+                .lean()
         ]);
 
         return res.status(200).json({
