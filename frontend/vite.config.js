@@ -10,7 +10,7 @@ export default defineConfig({
     // This removes the need for a hardcoded VITE_API_URL in dev.
     proxy: {
       '/api': {
-        target:      'http://localhost:5000',
+        target:      'http://localhost:3000',
         changeOrigin: true,
       },
     },

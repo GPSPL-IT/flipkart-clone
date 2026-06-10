@@ -44,6 +44,26 @@ const userSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: "Product"
         }
+    ],
+    role: {
+        type: String,
+        enum: ["user", "admin"],
+        default: "user"
+    },
+    supercoins: {
+        type: Number,
+        default: 0
+    },
+    walletBalance: {
+        type: Number,
+        default: 0
+    },
+    savedCards: [
+        {
+            cardNo: String,
+            nameOnCard: String,
+            expiry: String
+        }
     ]
 },
     {

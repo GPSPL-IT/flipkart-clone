@@ -96,9 +96,9 @@ const AdminDashboard = () => {
     setProdPrice(prod.price);
     setProdDiscount(prod.discountPercentage || 0);
     setProdBrand(prod.brand);
-    setProdCategory(prod.category._id || prod.category);
+    setProdCategory(prod.category?._id || prod.category || '');
     setProdStock(prod.stock);
-    setProdImages(prod.images.join(', '));
+    setProdImages(Array.isArray(prod.images) ? prod.images.join(', ') : (prod.image || ''));
     setProdSpecs(prod.specifications?.length > 0 ? [...prod.specifications] : [{ name: '', value: '' }]);
     setProdFeatured(prod.isFeatured || false);
     setProdTrending(prod.isTrending || false);
@@ -419,7 +419,7 @@ const AdminDashboard = () => {
                         {products.map((prod) => (
                           <tr key={prod._id} className="hover:bg-gray-50/40 dark:hover:bg-zinc-850/25">
                             <td className="py-2.5 px-4">
-                              <img src={prod.images[0]} alt="" className="w-10 h-10 object-contain bg-white rounded border border-gray-100 p-0.5" />
+                              <img src={(Array.isArray(prod.images) && prod.images[0]) || prod.image || ''} alt="" className="w-10 h-10 object-contain bg-white rounded border border-gray-100 p-0.5" />
                             </td>
                             <td className="py-2.5 px-4 font-bold text-gray-850 dark:text-white truncate max-w-[200px]" title={prod.title}>
                               {prod.title}

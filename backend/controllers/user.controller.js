@@ -2,6 +2,12 @@ import User from "../models/user.model.js";
 import Product from "../models/product.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import Notification from "../models/notification.model.js";
+
+const secrets = {
+    get access() { return process.env.ACCESS_TOKEN_SECRET || "default_access_token_secret_1234567890"; },
+    get refresh() { return process.env.REFRESH_TOKEN_SECRET || "default_refresh_token_secret_1234567890"; }
+};
 
 // user register function
 export const registerUser = async (req, res) => {
@@ -14,10 +20,39 @@ export const registerUser = async (req, res) => {
         if (duplicate) return res.status(409).json({ message: 'user already exists' });
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = await User.create({ name, email, password: hashedPassword });
+        // Default first user to admin role, or anyone with email containing 'admin'
+        const role = email.toLowerCase().includes('admin') ? 'admin' : 'user';
+        const newUser = await User.create({ name, email, password: hashedPassword, role });
+
+        const accessToken = jwt.sign(
+            { "userId": newUser._id },
+            secrets.access,
+            { expiresIn: '15m' }
+        );
+        const refreshToken = jwt.sign(
+            { "userId": newUser._id },
+            secrets.refresh,
+            { expiresIn: '7d' }
+        );
+
+        newUser.refreshToken = refreshToken;
+        await newUser.save();
+
+        res.cookie('jwt', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? 'None' : 'Lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
 
         return res.status(201).json({
             message: 'user created successfully',
+            token: accessToken,
+            accessToken,
+            _id: newUser._id,
+            name: newUser.name,
+            email: newUser.email,
+            role: newUser.role
         });
     } catch (error) {
         return res.status(500).json({
@@ -42,12 +77,12 @@ export const loginUser = async (req, res) => {
         // Create the Tokens
         const accessToken = jwt.sign(
             { "userId": foundUser._id },
-            process.env.ACCESS_TOKEN_SECRET,
+            secrets.access,
             { expiresIn: '15m' }
         );
         const refreshToken = jwt.sign(
             { "userId": foundUser._id },
-            process.env.REFRESH_TOKEN_SECRET,
+            secrets.refresh,
             { expiresIn: '7d' } //7 days
         );
 
@@ -61,14 +96,20 @@ export const loginUser = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
-        // Send access token in JSON response
+        // Send access token and user details in JSON response
         return res.status(200).json({
             message: 'user logged in successfully',
+            token: accessToken,
             accessToken,
             user: {
                 _id: foundUser._id,
                 name: foundUser.name,
-                email: foundUser.email
+                email: foundUser.email,
+                role: foundUser.role || 'user',
+                addresses: foundUser.address || [],
+                savedCards: foundUser.savedCards || [],
+                supercoins: foundUser.supercoins || 0,
+                walletBalance: foundUser.walletBalance || 0
             }
         })
     } catch (error) {
@@ -89,12 +130,12 @@ export const refreshToken = async (req, res) => {
 
     if (!foundUser) return res.status(403).json({ message: 'Forbidden' });
 
-    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
+    jwt.verify(refreshToken, secrets.refresh, (err, decoded) => {
         if (err || foundUser._id.toString() !== decoded.userId) return res.status(403).json({ message: 'Forbidden' });
 
         const newAccessToken = jwt.sign(
             { "userId": foundUser._id },
-            process.env.ACCESS_TOKEN_SECRET,
+            secrets.access,
             { expiresIn: '15m' }
         );
         res.json({ accessToken: newAccessToken });
@@ -134,10 +175,17 @@ export const getUserProfile = async (req, res) => {
     try {
         const user = await User.findById(req.userId).select('-password -refreshToken');
         if (!user) return res.status(404).json({ message: 'User not found' });
-        return res.json({
-            message: "user data fetch",
-            user
-        });
+        
+        const userObj = user.toObject();
+        userObj.addresses = userObj.address || [];
+        userObj.savedCards = userObj.savedCards || [];
+        userObj.supercoins = userObj.supercoins || 0;
+        userObj.walletBalance = userObj.walletBalance || 0;
+        
+        const userClean = { ...userObj };
+        userObj.user = userClean;
+        
+        return res.json(userObj);
     } catch (error) {
         return res.status(500).json({
             message: 'user profile fetch failed',
@@ -160,18 +208,24 @@ export const updateUserProfile = async (req, res) => {
         }
 
         if (name) user.name = name.trim();
-        user.password = await bcrypt.hash(password, 10);
-        user.gender = gender;
+        if (password) {
+            user.password = await bcrypt.hash(password, 10);
+        }
+        if (gender) user.gender = gender;
         const updatedUser = await user.save();
+
+        const userObj = updatedUser.toObject();
+        userObj.addresses = userObj.address || [];
+        userObj.savedCards = userObj.savedCards || [];
+        userObj.supercoins = userObj.supercoins || 0;
+        userObj.walletBalance = userObj.walletBalance || 0;
+        
+        const userClean = { ...userObj };
+        userObj.user = userClean;
 
         return res.status(200).json({
             message: 'Profile updated successfully',
-            user: {
-                _id: updatedUser._id,
-                name: updatedUser.name,
-                email: updatedUser.email,
-                gender: updatedUser.gender
-            }
+            user: userObj
         });
     } catch (error) {
         return res.status(500).json({
@@ -265,7 +319,7 @@ export const deleteAddress = async (req, res) => {
 // get wishlist function (unfinished) 
 export const getWishlist = async (req, res) => {
     try {
-        const user = await User.findById(req.user._id).populate({
+        const user = await User.findById(req.userId || req.user?._id).populate({
             path: 'wishlist', populate: { path: 'category', select: 'name slug' },
         });
         if (!user) return res.status(404).json({ message: 'User not found' });
@@ -283,7 +337,7 @@ export const toggleWishlist = async (req, res) => {
     try {
         const { productId } = req.body;
         const [user, product] = await Promise.all([
-            User.findById(req.user._id),
+            User.findById(req.userId || req.user?._id),
             Product.findById(productId),
         ]);
         if (!user) return res.status(404).json({ message: 'User not found' });
@@ -310,7 +364,7 @@ export const toggleWishlist = async (req, res) => {
 // get reciently viewed products
 export const getRecentlyViewed = async (req, res) => {
     try {
-        const user = await User.findById(req.user._id).populate('recentlyViewed');
+        const user = await User.findById(req.userId || req.user?._id).populate('recentlyViewed');
         if (!user) return res.status(404).json({ message: 'User not found' });
         return res.json(user.recentlyViewed);
     } catch (error) {
@@ -325,7 +379,7 @@ export const getRecentlyViewed = async (req, res) => {
 export const addRecentlyViewed = async (req, res) => {
     try {
         const { productId } = req.body;
-        const user = await User.findById(req.user._id);
+        const user = await User.findById(req.userId || req.user?._id);
         if (!user) return res.status(404).json({ message: 'User not found' });
 
         user.recentlyViewed = user.recentlyViewed.filter((id) => id.toString() !== productId);
@@ -339,5 +393,105 @@ export const addRecentlyViewed = async (req, res) => {
             message: 'recently viewed add failed',
             error: error.message
         })
+    }
+};
+
+// Notifications
+export const getUserNotifications = async (req, res) => {
+    try {
+        const notifications = await Notification.find({ user: req.userId || req.user?._id }).sort({ createdAt: -1 });
+        return res.json(notifications);
+    } catch (error) {
+        return res.status(500).json({ message: 'Failed to fetch notifications', error: error.message });
+    }
+};
+
+export const markNotificationRead = async (req, res) => {
+    try {
+        const notification = await Notification.findById(req.params.id);
+        if (!notification) return res.status(404).json({ message: 'Notification not found' });
+        notification.read = true;
+        notification.isRead = true;
+        await notification.save();
+        return res.json(notification);
+    } catch (error) {
+        return res.status(500).json({ message: 'Failed to mark notification read', error: error.message });
+    }
+};
+
+export const deleteNotification = async (req, res) => {
+    try {
+        await Notification.findByIdAndDelete(req.params.id);
+        return res.json({ message: 'Notification deleted successfully' });
+    } catch (error) {
+        return res.status(500).json({ message: 'Failed to delete notification', error: error.message });
+    }
+};
+
+// Saved Cards
+export const addSavedCard = async (req, res) => {
+    try {
+        const user = await User.findById(req.userId || req.user?._id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        const { cardNo, nameOnCard, expiry } = req.body;
+        user.savedCards.push({ cardNo, nameOnCard, expiry });
+        await user.save();
+        return res.json(user.savedCards);
+    } catch (error) {
+        return res.status(500).json({ message: 'Failed to save card', error: error.message });
+    }
+};
+
+export const deleteSavedCard = async (req, res) => {
+    try {
+        const user = await User.findById(req.userId || req.user?._id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        user.savedCards = user.savedCards.filter(card => card._id.toString() !== req.params.cardId);
+        await user.save();
+        return res.json(user.savedCards);
+    } catch (error) {
+        return res.status(500).json({ message: 'Failed to delete card', error: error.message });
+    }
+};
+
+// Wallet
+export const addWalletFunds = async (req, res) => {
+    try {
+        const user = await User.findById(req.userId || req.user?._id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        const { amount } = req.body;
+        user.walletBalance = (user.walletBalance || 0) + Number(amount);
+        await user.save();
+
+        await Notification.create({
+            user: user._id,
+            title: 'Funds Added Successfully',
+            message: `₹${amount} has been added to your wallet. New balance: ₹${user.walletBalance}.`
+        });
+
+        return res.json({ walletBalance: user.walletBalance });
+    } catch (error) {
+        return res.status(500).json({ message: 'Failed to add funds', error: error.message });
+    }
+};
+
+export const redeemGiftCard = async (req, res) => {
+    try {
+        const user = await User.findById(req.userId || req.user?._id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        const { code, pin } = req.body;
+        const value = 500; // Mock value
+        user.walletBalance = (user.walletBalance || 0) + value;
+        await user.save();
+
+        await Notification.create({
+            user: user._id,
+            title: 'Gift Card Redeemed',
+            message: `Gift Card ${code} worth ₹${value} has been successfully redeemed to your wallet.`
+        });
+
+        return res.json({ walletBalance: user.walletBalance });
+    } catch (error) {
+        return res.status(500).json({ message: 'Failed to redeem gift card', error: error.message });
     }
 };

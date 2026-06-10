@@ -17,9 +17,17 @@ const productSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    discountPercentage: {
+        type: Number,
+        default: 0
+    },
     image: {
         type: String,
         require: true
+    },
+    images: {
+        type: [String],
+        default: []
     },
     category: {
         type: mongoose.Schema.Types.ObjectId,
@@ -37,6 +45,20 @@ const productSchema = new mongoose.Schema({
     ratings: {
         type: Number,
         default: 0
+    },
+    specifications: [
+        {
+            name: String,
+            value: String
+        }
+    ],
+    isFeatured: {
+        type: Boolean,
+        default: false
+    },
+    isTrending: {
+        type: Boolean,
+        default: false
     },
     numReviews: {
         type: mongoose.Schema.Types.ObjectId,
