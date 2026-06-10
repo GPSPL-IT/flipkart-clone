@@ -5,15 +5,15 @@ export const createReview = async (req, res) => {
     try {
         const { rating, comment } = req.body;
 
-        const product = await Product.findById(req.params.productId);
-
+        const product = await Product.findById(req.query.productId);
+        console.log(req.user);
         if (!product) {
             return res.status(404).json({
                 success: false,
                 message: "Product not found",
             });
         }
-        const review = await Review.create({ rating, comment, product: req.params.productId, user: req.user._id });
+        const review = await Review.create({ rating, comment, product: req.query.productId, user: req.userId });
 
         res.status(201).json({
             success: true,
