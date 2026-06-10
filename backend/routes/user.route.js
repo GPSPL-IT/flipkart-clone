@@ -19,7 +19,9 @@ import {
     addSavedCard,
     deleteSavedCard,
     addWalletFunds,
-    redeemGiftCard
+    redeemGiftCard,
+    forgotPassword,
+    resetPassword
 } from "../controllers/user.controller.js"
 import protect from "../middleware/auth.middleware.js";
 const router = express.Router();
@@ -28,6 +30,8 @@ router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.post("/refresh", refreshToken);
 router.post("/logout", logout);
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password/:token", resetPassword);
 router.get("/profile", protect, getUserProfile)
 router.put("/profile", protect, updateUserProfile)
 

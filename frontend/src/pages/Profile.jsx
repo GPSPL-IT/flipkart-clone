@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { User, MapPin, Key, Plus, Edit, Trash2, ShieldCheck, Ticket, Award, Sparkles, CreditCard, Gift, Bell, Check, Copy } from 'lucide-react';
+import { User, MapPin, Key, Plus, Edit, Trash2, ShieldCheck, CreditCard, Gift, Bell, Check, Copy } from 'lucide-react';
 import API from '../services/api';
 
 const Profile = () => {
@@ -286,9 +286,6 @@ const Profile = () => {
   // Sidebar Menu mapping to Flipkart menu items
   const menuItems = [
     { id: 'personal', label: 'My Profile', icon: User },
-    { id: 'coupons', label: 'Coupons', icon: Ticket },
-    { id: 'supercoin', label: 'Supercoin', icon: Award },
-    { id: 'plus', label: 'Flipkart Plus Zone', icon: Sparkles },
     { id: 'wallet', label: 'Saved Cards & Wallet', icon: CreditCard },
     { id: 'addresses', label: 'Saved Addresses', icon: MapPin },
     { id: 'giftcards', label: 'Gift Cards', icon: Gift },
@@ -414,144 +411,6 @@ const Profile = () => {
                   {updating ? 'SAVING CHANGES...' : 'SAVE CHANGES'}
                 </button>
               </form>
-            </div>
-          )}
-
-          {/* 2. COUPONS VIEW */}
-          {activeTab === 'coupons' && (
-            <div>
-              <h3 className="text-base font-bold text-gray-800 dark:text-white border-b pb-3 mb-5">Available Coupons</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {promoCoupons.map((coupon) => (
-                  <div key={coupon.code} className="border border-dashed border-gray-300 dark:border-zinc-750 bg-gray-50/50 dark:bg-zinc-800/20 p-4 rounded flex flex-col justify-between items-start gap-4">
-                    <div>
-                      <span className="font-mono bg-yellow-100 dark:bg-yellow-950/40 px-2.5 py-1 text-xs font-black tracking-wider text-yellow-800 dark:text-yellow-400 rounded">
-                        {coupon.code}
-                      </span>
-                      <p className="text-xs text-gray-650 dark:text-zinc-400 font-semibold mt-3">{coupon.desc}</p>
-                    </div>
-                    <button
-                      onClick={() => handleCopyCoupon(coupon.code)}
-                      className="text-xs font-bold text-flipkart-blue dark:text-blue-400 flex items-center gap-1 hover:underline"
-                    >
-                      {copiedCoupon === coupon.code ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
-                      {copiedCoupon === coupon.code ? 'COPIED!' : 'COPY CODE'}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* 3. SUPERCOIN VIEW */}
-          {activeTab === 'supercoin' && (
-            <div className="flex flex-col gap-6">
-              <h3 className="text-base font-bold text-gray-800 dark:text-white border-b pb-3">Supercoin loyalty Balance</h3>
-              
-              {/* Coin card */}
-              <div className="bg-gradient-to-br from-amber-400 to-amber-500 text-gray-950 p-6 rounded-sm shadow flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] uppercase font-bold tracking-widest text-amber-950/70 block">Available Balance</span>
-                  <span className="text-3xl font-black flex items-center gap-1.5 mt-1">
-                    <Award className="w-8 h-8 fill-amber-950/20 text-amber-950" /> {user.supercoins || 0} Coins
-                  </span>
-                </div>
-                <div className="text-xs text-right text-amber-950 font-semibold leading-relaxed hidden sm:block">
-                  1 Supercoin = ₹1 saved on shopping<br />
-                  Earn coins on every delivery
-                </div>
-              </div>
-
-              {/* Transactions Ledger */}
-              <div className="border border-gray-150 dark:border-zinc-800 rounded p-4">
-                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest border-b pb-2 mb-3">Supercoin Activity history</h4>
-                
-                <div className="divide-y text-xs divide-gray-100 dark:divide-zinc-800">
-                  <div className="py-2.5 flex justify-between items-center text-gray-700 dark:text-zinc-400">
-                    <div>
-                      <span className="font-bold text-gray-850 dark:text-white block">Welcome Coins Credited</span>
-                      <span className="text-[10px] text-gray-400">Seeded on account creation</span>
-                    </div>
-                    <span className="font-bold text-green-600 font-mono text-sm">+45 Coins</span>
-                  </div>
-                  
-                  {user.supercoins > 45 && (
-                    <div className="py-2.5 flex justify-between items-center text-gray-700 dark:text-zinc-400">
-                      <div>
-                        <span className="font-bold text-gray-850 dark:text-white block">Earned on order purchases</span>
-                        <span className="text-[10px] text-gray-400">Order Delivery bonus</span>
-                      </div>
-                      <span className="font-bold text-green-600 font-mono text-sm">+{user.supercoins - 45} Coins</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* 4. FLIPKART PLUS ZONE VIEW */}
-          {activeTab === 'plus' && (
-            <div className="flex flex-col gap-6">
-              <h3 className="text-base font-bold text-gray-800 dark:text-white border-b pb-3">Flipkart Plus Zone</h3>
-              
-              {user.supercoins >= 100 ? (
-                /* Plus Member active card */
-                <div className="bg-zinc-900 text-white p-6 rounded-sm border border-zinc-850 shadow flex items-center justify-between">
-                  <div>
-                    <span className="bg-flipkart-blue text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider block w-max mb-2">Active</span>
-                    <h4 className="text-lg font-black flex items-center gap-1">
-                      You are a <span className="text-flipkart-yellow font-extrabold italic">Flipkart Plus</span> Member!
-                    </h4>
-                    <p className="text-xs text-zinc-400 mt-1.5">Enjoy unlocked early access, free shipping, and discount privileges.</p>
-                  </div>
-                  <Sparkles className="w-12 h-12 text-flipkart-yellow animate-pulse" />
-                </div>
-              ) : (
-                /* Plus Member unlock requirements card */
-                <div className="bg-gray-50 dark:bg-zinc-850 p-6 rounded border flex flex-col gap-4">
-                  <div>
-                    <h4 className="text-sm font-bold text-gray-800 dark:text-white flex items-center gap-1.5">
-                      <Sparkles className="w-4 h-4 text-flipkart-yellow-dark" /> Unlock Flipkart Plus Membership
-                    </h4>
-                    <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">
-                      Earn 100 Supercoins to unlock premium shopping privileges.
-                    </p>
-                  </div>
-
-                  <div className="flex flex-col gap-1">
-                    <div className="flex justify-between text-xs text-gray-600 dark:text-zinc-400 font-bold">
-                      <span>{user.supercoins || 0} / 100 Coins</span>
-                      <span>{100 - (user.supercoins || 0)} coins needed</span>
-                    </div>
-                    <div className="w-full bg-gray-200 dark:bg-zinc-700 h-2.5 rounded-full overflow-hidden">
-                      <div className="bg-flipkart-blue h-full rounded-full" style={{ width: `${Math.min(100, user.supercoins)}%` }}></div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Plus Zone Benefits */}
-              <div>
-                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3.5">Plus Membership Benefits</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-                  <div className="border rounded p-4 flex flex-col items-center gap-2">
-                    <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-950/20 text-flipkart-blue flex items-center justify-center font-bold">1</div>
-                    <span className="text-xs font-bold text-gray-800 dark:text-white">Free Fast Shipping</span>
-                    <p className="text-[10px] text-gray-500">Free delivery on plus catalog products without minimum order amount.</p>
-                  </div>
-                  <div className="border rounded p-4 flex flex-col items-center gap-2">
-                    <div className="w-10 h-10 rounded-full bg-green-50 dark:bg-green-950/20 text-green-600 flex items-center justify-center font-bold">2</div>
-                    <span className="text-xs font-bold text-gray-800 dark:text-white">Early Sales Access</span>
-                    <p className="text-[10px] text-gray-500">Shop seasonal mega deals and sales 24 hours before standard accounts.</p>
-                  </div>
-                  <div className="border rounded p-4 flex flex-col items-center gap-2">
-                    <div className="w-10 h-10 rounded-full bg-amber-50 dark:bg-amber-950/20 text-amber-500 flex items-center justify-center font-bold">3</div>
-                    <span className="text-xs font-bold text-gray-800 dark:text-white">2x Supercoins Earn</span>
-                    <p className="text-[10px] text-gray-500">Earn double supercoins rates compared to standard user profiles.</p>
-                  </div>
-                </div>
-              </div>
-
             </div>
           )}
 

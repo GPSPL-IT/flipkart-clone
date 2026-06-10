@@ -32,7 +32,7 @@ const CheckoutForm = ({ selectedAddress, paymentMethod, setPaymentMethod, onOrde
       const orderItems = billingBreakdown.items.map(item => ({
         name: item.product.title,
         qty: item.quantity,
-        image: item.product.images[0],
+        image: item.product.images?.[0] || item.product.image || '',
         price: item.product.price,
         product: item.product._id
       }));
@@ -510,7 +510,7 @@ const Checkout = () => {
             <div className="p-4 flex flex-col gap-3 max-h-60 overflow-y-auto divide-y divide-gray-100 dark:divide-zinc-800">
               {billingBreakdown.items.map((item) => (
                 <div key={item.product._id} className="flex gap-3 pt-3 first:pt-0">
-                  <img src={item.product.images[0]} alt="" className="w-10 h-10 object-contain bg-white rounded border p-0.5" />
+                  <img src={item.product.images?.[0] || item.product.image || ''} alt="" className="w-10 h-10 object-contain bg-white rounded border p-0.5" />
                   <div className="flex-1 text-xs">
                     <span className="font-semibold block text-gray-700 dark:text-gray-300 line-clamp-1">{item.product.title}</span>
                     <span className="text-gray-400 block mt-0.5">Qty: {item.quantity}</span>

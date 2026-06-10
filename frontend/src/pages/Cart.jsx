@@ -23,7 +23,6 @@ const Cart = () => {
   const [applying, setApplying] = useState(false);
 
   const activeItems = cartItems.filter(item => !item.savedForLater);
-  console.log("Cart Items:", cartItems);
   const savedItems = cartItems.filter(item => item.savedForLater);
 
   const handleApplyCoupon = async (e) => {
@@ -99,7 +98,7 @@ const Cart = () => {
                       
                       {/* Product Image */}
                       <div className="w-24 h-24 bg-white flex items-center justify-center p-2 rounded border border-gray-150 relative self-center sm:self-start">
-                        <img src={prod.images[0]} alt={prod.title} className="max-h-full max-w-full object-contain" />
+                        <img src={prod.images?.[0] || prod.image || ''} alt={prod.title} className="max-h-full max-w-full object-contain" />
                       </div>
 
                       {/* Product Details */}
@@ -182,7 +181,7 @@ const Cart = () => {
                     <div key={prod._id} className="p-4 flex gap-4 items-start bg-gray-50/50 dark:bg-zinc-900/30">
                       
                       <div className="w-20 h-20 bg-white flex items-center justify-center p-1.5 rounded border border-gray-150">
-                        <img src={prod.images[0]} alt={prod.title} className="max-h-full max-w-full object-contain" />
+                        <img src={prod.images?.[0] || prod.image || ''} alt={prod.title} className="max-h-full max-w-full object-contain" />
                       </div>
 
                       <div className="flex-1 flex flex-col gap-1 w-full">

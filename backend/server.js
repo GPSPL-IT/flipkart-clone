@@ -3,6 +3,7 @@ import cors from "cors"
 import cookieParser from "cookie-parser"
 import dotenv from "dotenv"
 import connectDB from "./config/db.js"
+import { seedDatabase } from "./utils/seeder.js"
 import userRouter from "./routes/user.route.js"
 import productRouter from "./routes/product.route.js"
 import cartRouter from "./routes/cart.route.js"
@@ -24,7 +25,9 @@ app.get("/", (req, res) => {
 })
 
 // connect database (mongodb)
-connectDB()
+connectDB().then(() => {
+    seedDatabase();
+})
 
 // user and auth routes
 app.use("/api/users", userRouter)

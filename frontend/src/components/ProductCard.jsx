@@ -37,7 +37,7 @@ const ProductCard = ({ product }) => {
         {/* Product Image Container */}
         <div className="w-full h-48 bg-white dark:bg-white flex items-center justify-center p-4 relative overflow-hidden">
           <img
-            src={product.images[0] || 'https://via.placeholder.com/200'}
+            src={product.images?.[0] || product.image || 'https://via.placeholder.com/200'}
             alt={product.title}
             className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300"
           />

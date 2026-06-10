@@ -495,3 +495,26 @@ export const redeemGiftCard = async (req, res) => {
         return res.status(500).json({ message: 'Failed to redeem gift card', error: error.message });
     }
 };
+
+// Mock forgot password
+export const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email });
+        if (!user) return res.status(404).json({ message: 'User not found with this email' });
+        return res.status(200).json({ message: 'Password reset link sent to your email (Mocked)' });
+    } catch (error) {
+        return res.status(500).json({ message: 'Failed to process request', error: error.message });
+    }
+};
+
+// Mock reset password
+export const resetPassword = async (req, res) => {
+    try {
+        const { token } = req.params;
+        const { password } = req.body;
+        return res.status(200).json({ message: 'Password reset successful (Mocked)' });
+    } catch (error) {
+        return res.status(500).json({ message: 'Failed to reset password', error: error.message });
+    }
+};

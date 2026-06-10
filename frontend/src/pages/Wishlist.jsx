@@ -58,7 +58,7 @@ const Wishlist = () => {
                 
                 {/* Product Thumbnail */}
                 <Link to={`/product/${prod._id}`} className="w-20 h-20 bg-white flex items-center justify-center p-1.5 rounded border border-gray-150 relative">
-                  <img src={prod.images[0]} alt={prod.title} className="max-h-full max-w-full object-contain" />
+                  <img src={prod.images?.[0] || prod.image || ''} alt={prod.title} className="max-h-full max-w-full object-contain" />
                 </Link>
 
                 {/* Details info */}
