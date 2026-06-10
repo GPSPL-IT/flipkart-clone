@@ -1,7 +1,7 @@
-const Order = require("../models/orderModel");
+import Order from "../models/order.model.js";
 
 // Create Order
-const createOrder = async (req, res) => {
+export const createOrder = async (req, res) => {
     try {
         const {
             products,
@@ -35,7 +35,7 @@ const createOrder = async (req, res) => {
 };
 
 // Get Logged-in User Orders
-const getMyOrders = async (req, res) => {
+export const getMyOrders = async (req, res) => {
     try {
         const orders = await Order.find({
             user: req.user._id,
@@ -55,7 +55,7 @@ const getMyOrders = async (req, res) => {
 };
 
 // Get Single Order
-const getOrderById = async (req, res) => {
+export const getOrderById = async (req, res) => {
     try {
         const order = await Order.findById(req.params.id)
             .populate("user", "name email");
@@ -80,7 +80,7 @@ const getOrderById = async (req, res) => {
 };
 
 // Admin - Get All Orders
-const getAllOrders = async (req, res) => {
+export const getAllOrders = async (req, res) => {
     try {
         const orders = await Order.find()
             .populate("user", "name email")
@@ -100,7 +100,7 @@ const getAllOrders = async (req, res) => {
 };
 
 // Admin - Update Order Status
-const updateOrderStatus = async (req, res) => {
+export const updateOrderStatus = async (req, res) => {
     try {
         const { orderStatus } = req.body;
 
@@ -130,10 +130,3 @@ const updateOrderStatus = async (req, res) => {
     }
 };
 
-module.exports = {
-    createOrder,
-    getMyOrders,
-    getOrderById,
-    getAllOrders,
-    updateOrderStatus,
-};
