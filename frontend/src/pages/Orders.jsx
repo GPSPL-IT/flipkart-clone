@@ -11,7 +11,8 @@ const Orders = () => {
     const fetchOrders = async () => {
       try {
         const { data } = await API.get('/orders/my-orders');
-        setOrders(data || []);
+        setOrders(data.orders || []);
+
       } catch (err) {
         console.error('Error fetching user orders history', err);
       } finally {
@@ -106,9 +107,9 @@ const Orders = () => {
               <div className="flex items-center justify-between md:justify-end gap-6 border-t md:border-t-0 border-gray-100 dark:border-zinc-800 pt-3 md:pt-0">
                 <span className={`
                   text-xs font-bold px-3 py-1 rounded border uppercase tracking-wider
-                  ${getStatusColor(order.status)}
+                  ${getStatusColor(order.orderStatus)}
                 `}>
-                  {order.status}
+                  {order.orderStatus}
                 </span>
                 
                 <span className="text-xs text-flipkart-blue dark:text-blue-400 font-bold flex items-center gap-0.5 group">

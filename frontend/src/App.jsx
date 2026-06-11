@@ -1,28 +1,28 @@
 import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { CartProvider }          from './context/CartContext';
-import { WishlistProvider }      from './context/WishlistContext';
-import Navbar  from './components/Navbar';
-import Footer  from './components/Footer';
+import { CartProvider } from './context/CartContext';
+import { WishlistProvider } from './context/WishlistContext';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 
 // ── Eagerly loaded (small / critical path) ───────────────
-import Home           from './pages/Home';
-import Login          from './pages/Login';
-import Register       from './pages/Register';
-import ResetPassword  from './pages/ResetPassword';
-import ProductList    from './pages/ProductList';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import ResetPassword from './pages/ResetPassword';
+import ProductList from './pages/ProductList';
 import ProductDetails from './pages/ProductDetails';
-import Cart           from './pages/Cart';
-import Wishlist       from './pages/Wishlist';
+import Cart from './pages/Cart';
+import Wishlist from './pages/Wishlist';
 
 // ── Lazy loaded (heavier pages — only fetched when needed) ─
-const Checkout          = lazy(() => import('./pages/Checkout'));
+const Checkout = lazy(() => import('./pages/Checkout'));
 const OrderConfirmation = lazy(() => import('./pages/OrderConfirmation'));
-const Orders            = lazy(() => import('./pages/Orders'));
-const OrderTracking     = lazy(() => import('./pages/OrderTracking'));
-const Profile           = lazy(() => import('./pages/Profile'));
-const AdminDashboard    = lazy(() => import('./pages/AdminDashboard'));
+const Orders = lazy(() => import('./pages/Orders'));
+const OrderTracking = lazy(() => import('./pages/OrderTracking'));
+const Profile = lazy(() => import('./pages/Profile'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 
 // ── Shared loading spinner ────────────────────────────────
 const Spinner = () => (
@@ -62,13 +62,13 @@ function App() {
                 <Suspense fallback={<Spinner />}>
                   <Routes>
                     {/* ── Public routes ─────────────────── */}
-                    <Route path="/"                     element={<Home />} />
-                    <Route path="/search"               element={<ProductList />} />
-                    <Route path="/product/:id"          element={<ProductDetails />} />
-                    <Route path="/cart"                 element={<Cart />} />
-                    <Route path="/wishlist"             element={<Wishlist />} />
-                    <Route path="/login"                element={<Login />} />
-                    <Route path="/register"             element={<Register />} />
+                    <Route path="/" element={<Home />} />
+                    <Route path="/search" element={<ProductList />} />
+                    <Route path="/product/:id" element={<ProductDetails />} />
+                    <Route path="/cart" element={<Cart />} />
+                    <Route path="/wishlist" element={<Wishlist />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
                     <Route path="/reset-password/:token" element={<ResetPassword />} />
 
                     {/* ── Protected routes (login required) */}

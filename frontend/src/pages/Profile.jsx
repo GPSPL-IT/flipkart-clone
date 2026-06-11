@@ -289,7 +289,7 @@ const Profile = () => {
     { id: 'wallet', label: 'Saved Cards & Wallet', icon: CreditCard },
     { id: 'addresses', label: 'Saved Addresses', icon: MapPin },
     { id: 'giftcards', label: 'Gift Cards', icon: Gift },
-    { id: 'notifications', label: 'Notifications', icon: Bell, badge: notifications.filter(n => !n.isRead).length }
+    { id: 'notifications', label: 'Notifications', icon: Bell, badge: (notifications || []).filter(n => !n.isRead).length }
   ];
 
   return (
@@ -301,11 +301,11 @@ const Profile = () => {
           
           <div className="p-5 bg-flipkart-blue text-white flex items-center gap-3">
             <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center font-bold text-lg border">
-              {user.name.charAt(0).toUpperCase()}
+              {user?.name?.charAt(0)?.toUpperCase() || '?'}
             </div>
             <div>
               <span className="text-[10px] text-blue-150 font-bold uppercase tracking-wider block">Hello,</span>
-              <span className="text-base font-extrabold block truncate max-w-[200px]">{user.name}</span>
+              <span className="text-base font-extrabold block truncate max-w-[200px]">{user?.name || 'User'}</span>
             </div>
           </div>
 

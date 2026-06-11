@@ -107,11 +107,13 @@ export const AuthProvider = ({ children }) => {
   const updateProfile = async (profileData) => {
     try {
       const { data } = await API.put('/auth/profile', profileData);
+      // Backend returns { message, user: userObj } — read from data.user
+      const updated = data.user || data;
       setUser(prev => ({
         ...prev,
-        name: data.name,
-        email: data.email,
-        role: data.role
+        name: updated.name ?? prev.name,
+        email: updated.email ?? prev.email,
+        role: updated.role ?? prev.role
       }));
       if (data.token) {
         localStorage.setItem('token', data.token);
@@ -122,6 +124,7 @@ export const AuthProvider = ({ children }) => {
       throw new Error(msg);
     }
   };
+
 
   // Address: Add
   const addAddress = async (addressData) => {

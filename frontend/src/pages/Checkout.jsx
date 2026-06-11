@@ -55,7 +55,8 @@ const CheckoutForm = ({ selectedAddress, paymentMethod, setPaymentMethod, onOrde
           paymentResult: { id: `cod_${Date.now()}`, status: 'Pending', email_address: user.email }
         });
         await clearCart();
-        onOrderSuccess(data._id);
+        // Backend returns { success, order, _id } — use order._id with fallback
+        onOrderSuccess(data.order?._id || data._id);
       } else {
         // Card Payment (Stripe)
         // 1. Get Payment Intent client secret
@@ -115,7 +116,7 @@ const CheckoutForm = ({ selectedAddress, paymentMethod, setPaymentMethod, onOrde
         });
 
         await clearCart();
-        onOrderSuccess(orderData._id);
+        onOrderSuccess(orderData.order?._id || orderData._id);
       }
     } catch (err) {
       console.error('Checkout error:', err);

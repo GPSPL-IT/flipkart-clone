@@ -12,7 +12,9 @@ const OrderTracking = () => {
     const fetchOrderDetails = async () => {
       try {
         const { data } = await API.get(`/orders/${id}`);
-        setOrder(data);
+        // Backend returns { success, order } — read from data.order
+        setOrder(data.order || data);
+
       } catch (err) {
         console.error('Error fetching tracking status details', err);
       } finally {
@@ -46,8 +48,9 @@ const OrderTracking = () => {
 
   // Helper values for step progress calculations
   const steps = ['Processing', 'Shipped', 'Delivered'];
-  const currentStepIndex = steps.indexOf(order.status);
-  const isCancelled = order.status === 'Cancelled';
+  const currentStepIndex = steps.indexOf(order.orderStatus);
+  const isCancelled = order.orderStatus === 'Cancelled';
+
 
   const getStepStatus = (index) => {
     if (isCancelled) return 'cancelled';
@@ -129,18 +132,29 @@ const OrderTracking = () => {
           <h3 className="text-sm font-bold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-4">Activity Log</h3>
           
           <div className="relative pl-6 border-l-2 border-gray-200 dark:border-zinc-800 space-y-6 max-w-2xl">
-            {order.trackingHistory.map((event, idx) => (
-              <div key={idx} className="relative">
-                {/* Event Dot */}
+            {(order.trackingHistory || []).length > 0 ? (
+              (order.trackingHistory || []).map((event, idx) => (
+                <div key={idx} className="relative">
+                  {/* Event Dot */}
+                  <span className="absolute -left-[31px] top-1.5 w-4 h-4 bg-white dark:bg-zinc-900 border-2 border-flipkart-blue rounded-full"></span>
+                  
+                  <span className="text-xs font-bold text-gray-800 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                    {event.status} <span className="text-[10px] text-gray-400 normal-case font-normal flex items-center gap-1"><Calendar className="w-3 h-3" /> {new Date(event.timestamp).toLocaleString('en-IN')}</span>
+                  </span>
+                  <p className="text-xs text-gray-500 mt-1">{event.description}</p>
+                </div>
+              ))
+            ) : (
+              <div className="relative">
                 <span className="absolute -left-[31px] top-1.5 w-4 h-4 bg-white dark:bg-zinc-900 border-2 border-flipkart-blue rounded-full"></span>
-                
                 <span className="text-xs font-bold text-gray-800 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
-                  {event.status} <span className="text-[10px] text-gray-400 normal-case font-normal flex items-center gap-1"><Calendar className="w-3 h-3" /> {new Date(event.timestamp).toLocaleString('en-IN')}</span>
+                  Order Placed <span className="text-[10px] text-gray-400 normal-case font-normal flex items-center gap-1"><Calendar className="w-3 h-3" /> {new Date(order.createdAt).toLocaleString('en-IN')}</span>
                 </span>
-                <p className="text-xs text-gray-500 mt-1">{event.description}</p>
+                <p className="text-xs text-gray-500 mt-1">Your order has been received and is being processed.</p>
               </div>
-            ))}
+            )}
           </div>
+
         </div>
 
         {/* Order details & delivery info cards grid */}

@@ -34,13 +34,14 @@ const ProductDetails = () => {
       setLoading(true);
       try {
         const { data } = await API.get(`/products/${id}`);
+        // Backend returns { success, product, relatedProducts } at root level
         setProduct(data.product);
         setRelatedProducts(data.relatedProducts || []);
         setActiveImage(data.product?.images?.[0] || '');
 
-        // Fetch reviews
-        const reviewsRes = await API.get(`/products/${id}/reviews`);
-        setReviews(reviewsRes.data || []);
+        // Fetch reviews — correct endpoint is /reviews/product/:productId
+        const reviewsRes = await API.get(`/reviews/product/${id}`);
+        setReviews(reviewsRes.data.reviews || []);
 
         // Add to user's recently viewed list in backend
         if (user) {
@@ -54,6 +55,7 @@ const ProductDetails = () => {
     };
     fetchProductData();
   }, [id, user]);
+
 
   if (loading) {
     return <ProductDetailSkeleton />;
@@ -101,7 +103,8 @@ const ProductDetails = () => {
     }
 
     try {
-      const { data } = await API.post(`/products/${product._id}/reviews`, {
+      await API.post(`/reviews`, {
+        productId: product._id,
         rating,
         title: reviewTitle,
         comment: reviewComment
@@ -114,8 +117,8 @@ const ProductDetails = () => {
       setRating(5);
 
       // Refresh reviews list
-      const updatedReviews = await API.get(`/products/${product._id}/reviews`);
-      setReviews(updatedReviews.data || []);
+      const updatedReviews = await API.get(`/reviews/product/${product._id}`);
+      setReviews(updatedReviews.data.reviews || []);
       
       // Update local product reviews counts
       setProduct(prev => ({
@@ -127,6 +130,7 @@ const ProductDetails = () => {
       setReviewError(err.response?.data?.message || 'Failed to submit review.');
     }
   };
+
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-8 py-6 bg-gray-50 dark:bg-zinc-950 transition-colors duration-200">

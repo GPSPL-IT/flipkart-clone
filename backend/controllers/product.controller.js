@@ -147,23 +147,27 @@ export const getProductByCategory = async (req, res) => {
 export const getProductById = async (req, res) => {
     try {
         const product = await Product.findById(req.params.id)
-        // .populate("category", "name slug").lean();
+            .populate("category", "name slug");
+
         if (!product) {
-            return res.status(404).json({ message: 'Product not found' });
+            return res.status(404).json({ success: false, message: 'Product not found' });
         }
-        // Fetch related products (same category, exclude current) in parallel
+
+        // Fetch related products (same category, exclude current)
         const relatedProducts = await Product.find({
-            category: product.category._id,
+            category: product.category?._id,
             _id: { $ne: product._id },
         })
             .limit(4)
             .populate('category', 'name slug')
             .lean();
+
         return res.status(200).json({
             success: true,
             message: "Product fetched successfully",
-            data: { product, relatedProducts }
-        })
+            product,
+            relatedProducts
+        });
     } catch (error) {
         return res.status(500).json({
             success: false,
@@ -172,6 +176,7 @@ export const getProductById = async (req, res) => {
         })
     }
 }
+
 
 // get product review
 export const getProductReviews = async (req, res) => {

@@ -12,7 +12,7 @@ const OrderConfirmation = () => {
     const fetchOrder = async () => {
       try {
         const { data } = await API.get(`/orders/${id}`);
-        setOrder(data);
+        setOrder(data.order || data);
       } catch (err) {
         console.error('Error loading order summary for confirmation', err);
       } finally {

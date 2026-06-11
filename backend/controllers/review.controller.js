@@ -1,19 +1,38 @@
 import Review from "../models/review.model.js";
 import Product from "../models/product.model.js";
+import User from "../models/user.model.js";
+
 // Create Review
 export const createReview = async (req, res) => {
     try {
-        const { rating, comment } = req.body;
+        const { rating, title, comment, productId } = req.body;
 
-        const product = await Product.findById(req.query.productId);
-        console.log(req.user);
+        // productId can come from body or query param
+        const resolvedProductId = productId || req.query.productId;
+
+        if (!resolvedProductId) {
+            return res.status(400).json({ success: false, message: "Product ID is required" });
+        }
+
+        const product = await Product.findById(resolvedProductId);
         if (!product) {
             return res.status(404).json({
                 success: false,
                 message: "Product not found",
             });
         }
-        const review = await Review.create({ rating, comment, product: req.query.productId, user: req.userId });
+
+        // Fetch user name to store in review for display
+        const user = await User.findById(req.userId).select("name");
+
+        const review = await Review.create({
+            rating,
+            title: title || "",
+            comment,
+            product: resolvedProductId,
+            user: req.userId,
+            name: user?.name || "Anonymous",
+        });
 
         res.status(201).json({
             success: true,
@@ -33,7 +52,7 @@ export const getProductReviews = async (req, res) => {
     try {
         const reviews = await Review.find({
             product: req.params.productId,
-        });
+        }).sort({ createdAt: -1 });
 
         res.status(200).json({
             success: true,

@@ -4,20 +4,39 @@ import Order from "../models/order.model.js";
 export const createOrder = async (req, res) => {
     try {
         const {
-            products,
+            orderItems,
             shippingAddress,
-            totalAmount,
             paymentMethod,
+            paymentResult,
+            itemsPrice,
+            taxPrice,
+            shippingPrice,
+            discountAmount,
+            totalPrice,
         } = req.body;
 
+        if (!orderItems || orderItems.length === 0) {
+            return res.status(400).json({ success: false, message: "No order items provided" });
+        }
+
+        if (!totalPrice) {
+            return res.status(400).json({ success: false, message: "Total price is required" });
+        }
+
         const order = await Order.create({
-            user: req.user._id,
-            products,
+            user: req.userId,
+            orderItems,
             shippingAddress,
-            totalAmount,
-
-
-            paymentMethod,
+            paymentMethod: paymentMethod || "COD",
+            paymentResult: paymentResult || {},
+            itemsPrice: itemsPrice || 0,
+            taxPrice: taxPrice || 0,
+            shippingPrice: shippingPrice || 0,
+            discountAmount: discountAmount || 0,
+            totalPrice,
+            totalAmount: totalPrice, // legacy alias
+            isPaid: paymentMethod !== "COD",
+            paidAt: paymentMethod !== "COD" ? new Date() : undefined,
             orderStatus: "Pending",
         });
 
@@ -25,8 +44,10 @@ export const createOrder = async (req, res) => {
             success: true,
             message: "Order placed successfully",
             order,
+            _id: order._id, // convenience alias for frontend
         });
     } catch (error) {
+        console.error("Create order error:", error);
         res.status(500).json({
             success: false,
             message: error.message,
@@ -38,7 +59,7 @@ export const createOrder = async (req, res) => {
 export const getMyOrders = async (req, res) => {
     try {
         const orders = await Order.find({
-            user: req.user._id,
+            user: req.userId,
         }).sort({ createdAt: -1 });
 
         res.status(200).json({
@@ -115,6 +136,11 @@ export const updateOrderStatus = async (req, res) => {
 
         order.orderStatus = orderStatus;
 
+        if (orderStatus === "Delivered") {
+            order.isPaid = true;
+            order.paidAt = new Date();
+        }
+
         await order.save();
 
         res.status(200).json({
@@ -129,4 +155,3 @@ export const updateOrderStatus = async (req, res) => {
         });
     }
 };
-

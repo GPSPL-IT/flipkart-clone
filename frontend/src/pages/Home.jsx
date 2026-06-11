@@ -224,7 +224,7 @@ const Home = () => {
           <div className="bg-white dark:bg-zinc-900 rounded border border-gray-150 dark:border-zinc-800 p-4 md:p-5 shadow-sm transition-colors">
             <div className="flex items-center justify-between border-b pb-3.5 mb-4">
               <h3 className="text-base font-extrabold text-gray-800 dark:text-white">
-                {user ? `${user.name.split(' ')[0]}, still looking for these?` : 'Still looking for these?'}
+                {user ? `${user.name?.split(' ')[0] || 'User'}, still looking for these?` : 'Still looking for these?'}
               </h3>
             </div>
 
