@@ -208,23 +208,23 @@ export const CartProvider = ({ children }) => {
     };
   }, [cartItems, coupon]);
 
+  const contextValue = useMemo(() => ({
+    cartItems,
+    coupon,
+    couponError,
+    loading,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+    toggleSaveForLater,
+    clearCart,
+    applyCoupon,
+    removeCoupon,
+    billingBreakdown
+  }), [cartItems, coupon, couponError, loading, billingBreakdown]);
+
   return (
-    <CartContext.Provider
-      value={{
-        cartItems,
-        coupon,
-        couponError,
-        loading,
-        addToCart,
-        removeFromCart,
-        updateQuantity,
-        toggleSaveForLater,
-        clearCart,
-        applyCoupon,
-        removeCoupon,
-        billingBreakdown
-      }}
-    >
+    <CartContext.Provider value={contextValue}>
       {children}
     </CartContext.Provider>
   );

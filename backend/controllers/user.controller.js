@@ -25,7 +25,7 @@ export const registerUser = async (req, res) => {
         const newUser = await User.create({ name, email, password: hashedPassword, role });
 
         const accessToken = jwt.sign(
-            { "userId": newUser._id },
+            { "userId": newUser._id, "role": newUser.role },
             secrets.access,
             { expiresIn: '15m' }
         );
@@ -76,7 +76,7 @@ export const loginUser = async (req, res) => {
 
         // Create the Tokens
         const accessToken = jwt.sign(
-            { "userId": foundUser._id },
+            { "userId": foundUser._id, "role": foundUser.role },
             secrets.access,
             { expiresIn: '15m' }
         );
@@ -134,7 +134,7 @@ export const refreshToken = async (req, res) => {
         if (err || foundUser._id.toString() !== decoded.userId) return res.status(403).json({ message: 'Forbidden' });
 
         const newAccessToken = jwt.sign(
-            { "userId": foundUser._id },
+            { "userId": foundUser._id, "role": foundUser.role },
             secrets.access,
             { expiresIn: '15m' }
         );

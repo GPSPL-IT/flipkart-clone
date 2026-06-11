@@ -128,7 +128,7 @@ export const getTrendingProducts = async (req, res) => {
 // get caregory product
 export const getProductByCategory = async (req, res) => {
     try {
-        const categories = await Category.find({}).populate('parentCategory', 'name slug');
+        const categories = await Category.find({}).populate('parentCategory', 'name slug').lean();
         return res.status(200).json({
             success: true,
             message: "Categories fetched successfully",
@@ -147,7 +147,8 @@ export const getProductByCategory = async (req, res) => {
 export const getProductById = async (req, res) => {
     try {
         const product = await Product.findById(req.params.id)
-            .populate("category", "name slug");
+            .populate("category", "name slug")
+            .lean();
 
         if (!product) {
             return res.status(404).json({ success: false, message: 'Product not found' });

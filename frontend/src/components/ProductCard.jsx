@@ -4,7 +4,7 @@ import { Heart, Star } from 'lucide-react';
 import { useWishlist } from '../context/WishlistContext';
 import { calculateMrp, formatIndianCurrency } from '../utils/price';
 
-const ProductCard = ({ product }) => {
+const ProductCard = React.memo(({ product }) => {
   const { toggleWishlist, isInWishlist } = useWishlist();
 
   const isFavorite = isInWishlist(product._id);
@@ -39,6 +39,7 @@ const ProductCard = ({ product }) => {
           <img
             src={product.images?.[0] || product.image || 'https://via.placeholder.com/200'}
             alt={product.title}
+            loading="lazy"
             className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300"
           />
           {discount > 0 && (
@@ -97,6 +98,6 @@ const ProductCard = ({ product }) => {
       </Link>
     </div>
   );
-};
+});
 
 export default ProductCard;

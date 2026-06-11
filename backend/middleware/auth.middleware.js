@@ -17,15 +17,14 @@ const protect = (req, res, next) => {
             return res.status(403).json({ message: 'Forbidden: Invalid or expired token' });
         }
         req.userId = decoded.userId;
-        req.user = { _id: decoded.userId, id: decoded.userId };
+        req.user = { _id: decoded.userId, id: decoded.userId, role: decoded.role };
         next();
     });
 };
 
-const adminOnly = async (req, res, next) => {
+const adminOnly = (req, res, next) => {
     try {
-        const user = await User.findById(req.userId || req.user?._id);
-        if (!user || user.role !== 'admin') {
+        if (!req.user || req.user.role !== 'admin') {
             return res.status(403).json({ message: 'Forbidden: Admin access required' });
         }
         next();
