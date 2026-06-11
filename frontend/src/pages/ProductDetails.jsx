@@ -32,12 +32,15 @@ const ProductDetails = () => {
   useEffect(() => {
     const fetchProductData = async () => {
       setLoading(true);
+      
       try {
         const { data } = await API.get(`/products/${id}`);
         // Backend returns { success, product, relatedProducts } at root level
         setProduct(data.product);
         setRelatedProducts(data.relatedProducts || []);
-        setActiveImage(data.product?.images?.[0] || '');
+        setActiveImage(
+  data.product?.images?.[0] || data.product?.image || null
+);
 
         // Fetch reviews — correct endpoint is /reviews/product/:productId
         const reviewsRes = await API.get(`/reviews/product/${id}`);
@@ -142,7 +145,7 @@ const ProductDetails = () => {
             
             {/* Thumbnails Sidebar */}
             <div className="flex flex-col gap-2.5">
-              {product.images.map((img, idx) => (
+              {product?.images?.map((img, idx) => (
                 <div
                   key={idx}
                   onClick={() => setActiveImage(img)}
@@ -157,11 +160,17 @@ const ProductDetails = () => {
 
             {/* Viewport Display Box */}
             <div className="flex-1 h-96 bg-white border border-gray-100 dark:border-zinc-800 rounded p-4 relative flex items-center justify-center overflow-hidden group/zoom">
-              <img
-                src={activeImage}
-                alt={product.title}
-                className="max-h-full max-w-full object-contain transition-transform duration-500 group-hover/zoom:scale-110"
-              />
+              {activeImage ? (
+  <img
+    src={activeImage}
+    alt={product.title}
+    className="max-h-full max-w-full object-contain transition-transform duration-500 group-hover/zoom:scale-110"
+  />
+) : (
+  <div className="text-gray-400">
+    No Image Available
+  </div>
+)}
               
               {/* Wishlist Heart Overlay */}
               <button
